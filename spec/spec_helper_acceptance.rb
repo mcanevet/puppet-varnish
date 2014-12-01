@@ -2,6 +2,13 @@ require 'beaker-rspec'
 require 'pry'
 
 hosts.each do |host|
+  if host['platform'] =~ /debian-7/
+    # We need augeas 1.2+
+    on host, "echo deb http://pkg.camptocamp.net/apt wheezy/stable sysadmin > /etc/apt/sources.list.d/camptocamp.list"
+    on host, 'wget http://pkg.camptocamp.net/packages-c2c-key.gpg'
+    on host, 'apt-key add packages-c2c-key.gpg'
+    on host, 'echo -e "Explanation: profiles_common: augeas\nPackage: augeas-lenses augeas-tools augeas-doc libaugeas0\nPin: release o=Camptocamp\nPin-Priority: 1100" > /etc/apt/preferences.d/augeas.pref'
+  end
   # Install puppet
   if host['platform'] =~ /debian-8/
     install_package host, 'puppet'
